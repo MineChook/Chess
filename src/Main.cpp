@@ -1,4 +1,5 @@
 #include <spdlog/spdlog.h>
+
 #include "game/Game.h"
 
 #define U64 unsigned long long

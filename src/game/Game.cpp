@@ -1,53 +1,11 @@
 #include "Game.h"
+#include "../resources/shader/Shaders.h"
 
 #include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "spdlog/spdlog.h"
-#include "spdlog/fmt/bundled/core.h"
-
-static unsigned int CompileShader(unsigned int type, const std::string& source)
-{
-    unsigned int id = glCreateShader(type);
-    const char* src = source.c_str();
-    glShaderSource(id, 1, &src, nullptr);
-    glCompileShader(id);
-
-    int vertex_compiled;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &vertex_compiled);
-
-    if (vertex_compiled != GL_TRUE)
-    {
-        int log_length = 0;
-        char message[1024];
-        glGetShaderInfoLog(id, 1024, &log_length, message);
-        spdlog::error(message);
-        glDeleteShader(id);
-        return 0;
-    }
-
-    return id;
-}
-
-static unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
-{
-    unsigned int program = glCreateProgram();
-    unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
-    unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
-
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-    glLinkProgram(program);
-    glDetachShader(program, vs);
-    glDetachShader(program, fs);
-    glValidateProgram(program);
-
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-    return program;
-}
 
 bool StartGame()
 {
@@ -87,6 +45,11 @@ bool StartGame()
     glfwGetFramebufferSize(window, &fbw, &fbh);
     glViewport(0, 0, fbw, fbh);
 
+    // Keep viewport in sync on resize (important on macOS/Retina)
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow*, int width, int height){
+        glViewport(0, 0, width, height);
+    });
+
     glClearColor(0.06f, 0.07f, 0.08f, 1.0f);
 
     /* Loop until the user closes the window */
@@ -99,7 +62,6 @@ bool StartGame()
 
 static void GameLoop(GLFWwindow* window)
 {
-    // Core profile requires a VAO
     unsigned int vao = 0;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -118,25 +80,14 @@ static void GameLoop(GLFWwindow* window)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
 
+    const std::string shaderPath = std::string(PROJECT_SOURCE_DIR) + "/src/resources/shader/shaders/TriangleRed.shader";
+    ShaderSources sources = ParseShader(shaderPath);
 
-    std::string vertexShader =
-        "#version 410 core\n"
-        "\n"
-        "layout(location = 0) in vec2 position;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = vec4(position, 0.0, 1.0);\n"
-        "}\n";
-
-    std::string fragmentShader =
-            "#version 410 core\n"
-            "layout(location = 0) out vec4 color;\n"
-            "void main()\n"
-            "{\n"
-            "   color = vec4(1.0, 0.0, 0.0, 1.0);\n"
-            "}\n";
-
-    unsigned int shader = CreateShader(vertexShader, fragmentShader);
+    unsigned int shader = CreateShader(sources.VertexSource, sources.FragmentSource);
+    if (shader == 0)
+    {
+        spdlog::error("Failed to create shader program");
+    }
     glUseProgram(shader);
 
     do
@@ -152,4 +103,7 @@ static void GameLoop(GLFWwindow* window)
         /* Poll for and process events */
         glfwPollEvents();
     } while (!glfwWindowShouldClose(window));
+
+    if (shader)
+        glDeleteProgram(shader);
 }

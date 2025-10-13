@@ -23,7 +23,10 @@ add_executable(ChessAnalysis src/Main.cpp
         src/game/helpers/ChessPosition.h
         src/game/helpers/Color.h
         src/game/calculations/Engine.h
-        src/game/helpers/BitboardHelpers.h)
+        src/game/helpers/BitboardHelpers.h
+        src/resources/shader/Shaders.h
+        src/resources/shader/Shaders.cpp
+)
 
 # Fetch and build GLFW cross-platform
 include(FetchContent)
@@ -54,3 +57,15 @@ target_compile_definitions(ChessAnalysis PRIVATE GLFW_INCLUDE_NONE)
 # Link glad as well (no code changes required in Main.cpp)
 target_link_libraries(ChessAnalysis PRIVATE glfw OpenGL::GL glad)
 target_link_libraries(ChessAnalysis PRIVATE spdlog::spdlog)
+
+# Provide the source directory to the app so it can find resources at runtime
+# This avoids issues with relative paths when running from a build directory
+if (APPLE OR UNIX OR WIN32)
+    target_compile_definitions(ChessAnalysis PRIVATE PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+endif()
+
+# Include GLFW headers for better IDE support
+target_include_directories(ChessAnalysis PRIVATE 
+    ${glfw_SOURCE_DIR}/include
+    ${spdlog_SOURCE_DIR}/include
+)
