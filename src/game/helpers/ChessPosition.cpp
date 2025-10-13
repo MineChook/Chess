@@ -1,7 +1,10 @@
 #include "ChessPosition.h"
+
 #include "../helpers/BitboardHelpers.h"
+#include <vector>
 
 #define U64 unsigned long long
+#define Moves std::vector<Move>
 
 ChessPosition::ChessPosition(
     U64 whitePawns,
@@ -78,4 +81,11 @@ void ChessPosition::setToStartingPosition()
     blackBishops = generateBitboard({"c8","f8"});
     blackQueens  = generateBitboard({"d8"});
     blackKing    = generateBitboard({"e8"});
+}
+
+Moves ChessPosition::getPossibleMoves()
+{
+    Moves moves;
+
+    // implement stuff.
 }
