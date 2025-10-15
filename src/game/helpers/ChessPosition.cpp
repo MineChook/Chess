@@ -87,5 +87,8 @@ Moves ChessPosition::getPossibleMoves()
 {
     Moves moves;
 
-    // implement stuff.
+    return moves;
 }
+
+ChessPosition ChessPosition::ChessPositiconvertFromPGN() {
+};

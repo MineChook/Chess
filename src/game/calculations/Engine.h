@@ -13,4 +13,4 @@ static const int s_pieceValues[12] = {
     1, 3, 3, 5, 0, 9, 1, 3, 3, 5, 0, 9
 };
 
-static char* getFirstWord(const char* str, char* buffer, int bufferSize)l
+static char* getFirstWord(const char* str, char* buffer, int bufferSize);

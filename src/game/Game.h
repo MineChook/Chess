@@ -3,4 +3,4 @@
 
 bool StartGame();
 
-static void GameLoop(GLFWwindow* window);
+static void GameLoop(GLFWwindow* window, GLFWmonitor* monitor);

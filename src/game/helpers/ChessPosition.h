@@ -5,7 +5,8 @@
 
 #define Moves std::vector<Move>
 
-class ChessPosition {
+class ChessPosition
+{
 public:
 
     U64 whitePawns{}, whiteKnights{}, whiteBishops{}, whiteRooks{}, whiteKing{}, whiteQueens{};
@@ -20,4 +21,6 @@ public:
     void setToStartingPosition();
 
     Moves getPossibleMoves();
+
+    static ChessPosition ChessPositiconvertFromPGN();
 };

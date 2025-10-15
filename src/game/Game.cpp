@@ -53,34 +53,39 @@ bool StartGame()
     glClearColor(0.06f, 0.07f, 0.08f, 1.0f);
 
     /* Loop until the user closes the window */
-    GameLoop(window);
+    GameLoop(window, monitor);
 
     glfwTerminate();
 
     return true;
 }
 
-static void GameLoop(GLFWwindow* window)
+static void GameLoop(GLFWwindow* window, GLFWmonitor* monitor)
 {
     unsigned int vao = 0;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    float positions[6] = {
+    float triangle1[6] = {
         -0.5f, -0.5f,
          0.5f,  0.5f,
          0.5f, -0.5f
     };
 
+    float triangle2[6] = {
+        0.5f,  0.5f,
+        -0.5f, 0.5f,
+       -0.5f, -0.5f
+    };
+
     unsigned int triangleBuffer;
     glGenBuffers(1, &triangleBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, triangleBuffer);
-    glBufferData(GL_ARRAY_BUFFER,  6 * sizeof(float), positions,  GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
 
-    const std::string shaderPath = std::string(PROJECT_SOURCE_DIR) + "/src/resources/shader/shaders/TriangleRed.shader";
+    const std::string shaderPath = std::string(PROJECT_SOURCE_DIR) + "/src/resources/shader/shaders/BasicShader.glsl";
     ShaderSources sources = ParseShader(shaderPath);
 
     unsigned int shader = CreateShader(sources.VertexSource, sources.FragmentSource);
@@ -90,11 +95,23 @@ static void GameLoop(GLFWwindow* window)
     }
     glUseProgram(shader);
 
+    int u_time_location = glGetUniformLocation(shader, "u_time");
+    int u_height = glGetUniformLocation(shader, "u_height");
+    int u_width = glGetUniformLocation(shader, "u_width");
+
     do
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glUniform1f(u_time_location, glfwGetTime());
+        glUniform1f(u_height, (float) glfwGetVideoMode(monitor)->height);
+        glUniform1f(u_width, (float) glfwGetVideoMode(monitor)->width);
+
+        glBufferData(GL_ARRAY_BUFFER,  6 * sizeof(float), triangle1,  GL_STATIC_DRAW);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        glBufferData(GL_ARRAY_BUFFER,  6 * sizeof(float), triangle2,  GL_STATIC_DRAW);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         /* Swap front and back buffers */

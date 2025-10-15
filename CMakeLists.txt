@@ -26,7 +26,7 @@ add_executable(ChessAnalysis src/Main.cpp
         src/game/helpers/BitboardHelpers.h
         src/resources/shader/Shaders.h
         src/resources/shader/Shaders.cpp
-        src/game/helpers/Move.cpp
+        src/game/helpers/Piece.h
         src/game/helpers/Move.h
 )
 
